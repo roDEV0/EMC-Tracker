@@ -1,3 +1,2 @@
-BOT_TOKEN = 'MTI3MjIyNjYyODEzODcwMDg0MQ.G1oQp2.qLAN7ZoIcaG-DexnC7CFJMh80VTGHSQRMdkyk8'
 SERVER_CONFIGURATION_PATH = "./server_configurations"
 GROUP_STORAGE_DATA = "./api_storage"

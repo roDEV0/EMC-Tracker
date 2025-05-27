@@ -1,8 +1,11 @@
 import disnake
 from disnake.ext import commands
 import asyncio
+import os
 
 asyncio.set_event_loop(asyncio.new_event_loop())
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 intents = disnake.Intents.all()
 intents.message_content = True
@@ -34,4 +37,4 @@ bot.load_extension("background_tasks.onlineEmbed")
 bot.load_extension("background_tasks.verifyCheckup")
 
 
-bot.run('MTM3Njk3NzU1NTU0NjA1MDY1MA.Gmglfg.5lE1OMbUfTm1ptIX_Tja99Ro0WOeNn_AiUgXaM')
+bot.run(BOT_TOKEN)
