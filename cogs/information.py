@@ -3,6 +3,7 @@ from disnake.ext import commands
 
 import utils.postAPI as postAPI
 import utils.formatList as formatList
+import utils.checkNation as checkNation
 
 class Information(commands.Cog):
     def __init__(self, bot):
@@ -14,18 +15,21 @@ class Information(commands.Cog):
 
     @information.sub_command(name="relations", description="Shows your nation's relationships with other nations")
     async def relations(self, inter, target : str):
-        nation_data = postAPI.post_api_data('/nations', target)
+        if checkNation.check_nation(target):
+            nation_data = postAPI.post_api_data('/nations', target)
 
-        ally_data = nation_data[0]['allies']
-        enemy_data = nation_data[0]['enemies']
+            ally_data = nation_data[0]['allies']
+            enemy_data = nation_data[0]['enemies']
 
-        embed_variable = disnake.Embed(title=f"{nation_data[0]['name']} Relations | 🤝", description="", color=0xffffff)
-        embed_variable.add_field(name="Alliances", value=f"```{formatList.format_list(ally_data)}```", inline=True)
-        embed_variable.add_field(name="Enemies", value=f"```{formatList.format_list(enemy_data)}```", inline=True)
+            embed_variable = disnake.Embed(title=f"{nation_data[0]['name']} Relations | 🤝", description="", color=0xffffff)
+            embed_variable.add_field(name="Alliances", value=f"```{formatList.format_list(ally_data)}```", inline=True)
+            embed_variable.add_field(name="Enemies", value=f"```{formatList.format_list(enemy_data)}```", inline=True)
 
-        embed_variable.set_footer(text=f"{"v3.0"} Programmed by CreVolve", icon_url="https://i.imgur.com/jdxtHVd.jpeg")
+            embed_variable.set_footer(text=f"{"v3.0"} Programmed by CreVolve", icon_url="https://i.imgur.com/jdxtHVd.jpeg")
 
-        await inter.response.send_message(embed=embed_variable)
+            await inter.response.send_message(embed=embed_variable)
+        else:
+            await inter.response.send_message(f"**{target}** is not a real nation")
 
 def setup(bot):
     bot.add_cog(Information(bot))

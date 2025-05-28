@@ -1,6 +1,7 @@
 import disnake
 from disnake.ext import commands
 import utils.updateConfigurations as update_configurations
+import utils.formatList as formatList
 
 def status_string(value):
     """Returns a status string based on truthiness of value."""
@@ -55,8 +56,8 @@ class Configurations(commands.Cog):
         if not isinstance(tracked_nations, list):
             tracked_nations = []
         tracked_nations_str = (
-            "``````"
-            if tracked_nations else "``````"
+            f"```{"\n".join(f"- {nation}" for nation in tracked_nations)}```"
+            if tracked_nations else "```None```"
         )
 
         embed_variable = disnake.Embed(

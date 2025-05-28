@@ -1,9 +1,9 @@
 import disnake
 from disnake.ext import commands
+from disnake.ext.commands import default_member_permissions
 
-import utils.updateConfigurations as update_configurations
+import utils.updateConfigurations as updateConfigurations
 import utils.giveRole as giveRole
-from cogs.roles import Roles
 
 true_or_false = commands.option_enum(["True", "False"])
 
@@ -11,25 +11,25 @@ class Verify(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(name="verify", description="Related to verification")
+    @commands.slash_command(name="verify", description="Related to verification", default_member_permissions=disnake.Permissions(moderate_members=True))
     async def verify(self, inter : disnake.GuildCommandInteraction):
         pass
 
-    @verify.sub_command(name="give-verified-role", description="Toggle whether members get your citizen role when verified")
+    @verify.sub_command(name="give-verified-role", description="Toggle whether members get your citizen role when verified", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def give_verified_role(self, inter : disnake.GuildCommandInteraction, status: true_or_false):
-        update_configurations.update_configuration(context=inter, give_verified_role=status)
+        updateConfigurations.update_configuration(context=inter, give_verified_role=status)
 
-    @verify.sub_command(name="verified-checkup", description="Automatically remove people who have left the server from verifications")
+    @verify.sub_command(name="verified-checkup", description="Automatically remove people who have left the server from verifications", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def verified_checkup(self, inter : disnake.GuildCommandInteraction, status: true_or_false):
-        update_configurations.update_configuration(context=inter, verified_checkup=status)
+        updateConfigurations.update_configuration(context=inter, verified_checkup=status)
 
-    @verify.sub_command(name="add", description="Verify a citizen of your nation")
+    @verify.sub_command(name="add", description="Verify a citizen of your nation", default_member_permissions=disnake.Permissions(moderate_members=True))
     async def add(self, inter : disnake.GuildCommandInteraction, member: disnake.User, minecraft_username : str):
-        server_data = update_configurations.load_server_config(inter.guild.id)
+        server_data = updateConfigurations.load_server_config(inter.guild.id)
 
         possible_upload_data = {"discord": member, "minecraft": minecraft_username}
         if server_data is None:
-            update_configurations.update_configuration(inter, verified_citizen=possible_upload_data)
+            updateConfigurations.update_configuration(inter, verified_citizen=possible_upload_data)
         else:
             for entry in server_data["verified_citizens"]:
                 if member == entry["discord"]:
@@ -37,7 +37,7 @@ class Verify(commands.Cog):
                 if minecraft_username == entry["minecraft"]:
                     await inter.response.send_message(f"You have already verified the Minecraft user: **{minecraft_username}**")
 
-            update_configurations.update_configuration(inter, verified_citizen=possible_upload_data)
+            updateConfigurations.update_configuration(inter, verified_citizen=possible_upload_data)
 
             try:
                 if server_data["give_verified_role"] == "True":
@@ -50,21 +50,21 @@ class Verify(commands.Cog):
 
         await inter.response.send_message(f"Verified **{member.mention}** with link to **{minecraft_username}**")
 
-    @verify.sub_command(name="remove", description="Remove a citizen verification")
+    @verify.sub_command(name="remove", description="Remove a citizen verification", default_member_permissions=disnake.Permissions(moderate_members=True))
     async def remove(self, inter : disnake.GuildCommandInteraction, member: disnake.User):
-        server_data = update_configurations.load_server_config(inter.guild.id)
+        server_data = updateConfigurations.load_server_config(inter.guild.id)
 
         verified_citizens = server_data["verified_citizens"]
         for i in range(len(verified_citizens)):
             if verified_citizens[i]["discord"] == member.id:
-                update_configurations.remove_configuration(inter, verified_citizen=verified_citizens[i])
+                updateConfigurations.remove_configuration(inter, verified_citizen=verified_citizens[i])
                 await inter.response.send_message(f"Removed **{member.mention}** from verification")
 
         await inter.response.send_message(f"**{member.mention}** was not verified")
 
     @verify.sub_command(name="check", description="Check if someone is verified as a citizen")
     async def check(self, inter : disnake.GuildCommandInteraction, member: disnake.User):
-        server_data = update_configurations.load_server_config(inter.guild.id)
+        server_data = updateConfigurations.load_server_config(inter.guild.id)
 
         verified_citizens = server_data["verified_citizens"]
 

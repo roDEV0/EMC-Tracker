@@ -5,6 +5,7 @@ import os
 import constants
 import json
 import utils.postAPI as postAPI
+import utils.checkNation as checkNation
 
 import utils.updateConfigurations as update_configurations
 
@@ -14,52 +15,55 @@ class Notifications(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(name="notifications", description="Commands related to the notifications feature")
+    @commands.slash_command(name="notifications", description="Commands related to the notifications feature", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def notifications(self, inter : disnake.GuildCommandInteraction):
         pass
 
-    @notifications.sub_command(name="channel", description="Set the notifications channel for updated info on your nation")
+    @notifications.sub_command(name="channel", description="Set the notifications channel for updated info on your nation", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def notifications_channel(self, inter : disnake.GuildCommandInteraction, channel: disnake.TextChannel):
         update_configurations.update_configuration(context=inter, notifications_channel=channel.id)
         await inter.response.send_message(f"Updated notifications channel to **{channel.mention}**")
         print(f"Guild {inter.guild.id} has updated notifications channel to {channel.mention}")
 
-    @notifications.sub_command(name="status", description="Turn on or off notifications for updated info on your nation")
+    @notifications.sub_command(name="status", description="Turn on or off notifications for updated info on your nation", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def notifications_status(self, inter : disnake.GuildCommandInteraction, status : true_or_false):
         update_configurations.update_configuration(context=inter, notifications_status=status)
         await inter.response.send_message(f"Set notifications to **{status}**")
         print(f"Guild {inter.guild.id} has updated notifications status {status}")
 
-    @notifications.sub_command(name="add-target", description="Add another nation to add to your notifications")
+    @notifications.sub_command(name="add", description="Add another nation to add to your notifications", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def add_target(self, inter : disnake.GuildCommandInteraction, target: str):
-        path = os.path.join(constants.GROUP_STORAGE_DATA, f"{target}.json")
+        if checkNation.check_nation(target):
+            path = os.path.join(constants.GROUP_STORAGE_DATA, f"{target}.json")
 
-        if os.path.exists(path):
-            with open(path, "r+") as file:
-                data = json.load(file)
-                if inter.guild.id in data["audience"]:
-                    await inter.response.send_message(f"You have already added **{target}** to your notifications")
-                data["audience"].append(inter.guild.id)
-                file.seek(0)
-                json.dump(data, file, indent=4)
-                file.truncate()
+            if os.path.exists(path):
+                with open(path, "r+") as file:
+                    data = json.load(file)
+                    if inter.guild.id in data["audience"]:
+                        await inter.response.send_message(f"You have already added **{target}** to your notifications")
+                    data["audience"].append(inter.guild.id)
+                    file.seek(0)
+                    json.dump(data, file, indent=4)
+                    file.truncate()
 
+            else:
+                target_data = postAPI.post_api_data('/nations', target)[0]
+                residents = [r['name'] for r in target_data['residents']]
+                data = {
+                    "target": target,
+                    "residents": residents,
+                    "audience": [inter.guild.id],
+                    "embed_audience": []
+                }
+                with open(path, "w") as f:
+                    json.dump(data, f, indent=4)
+
+            await inter.response.send_message(f"Added **{target}** to your notifications")
+            update_configurations.update_configuration(context=inter, tracked_nations=target)
         else:
-            target_data = postAPI.post_api_data('/nations', target)[0]
-            residents = [r['name'] for r in target_data['residents']]
-            data = {
-                "target": target,
-                "residents": residents,
-                "audience": [inter.guild.id],
-                "embed_audience": []
-            }
-            with open(path, "w") as f:
-                json.dump(data, f, indent=4)
+            await inter.response.send_message(f"**{target}** is not a real nation")
 
-        await inter.response.send_message(f"Added **{target}** to your notifications")
-        update_configurations.update_configuration(context=inter, tracked_nations=target)
-
-    @notifications.sub_command(name="remove-target", description="Remove a nation from your notifications")
+    @notifications.sub_command(name="remove", description="Remove a nation from your notifications", default_member_permissions=disnake.Permissions(manage_guild=True))
     async def remove_target(self, inter : disnake.GuildCommandInteraction, target: str):
         path = os.path.join(constants.GROUP_STORAGE_DATA, f"{target}.json")
 

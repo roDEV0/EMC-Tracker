@@ -25,16 +25,17 @@ async def on_slash_command_error(ctx, error):
         await ctx.send("You don't have permission to do that.")
     else:
         await ctx.send("An unexpected error has occurred. Try again later.")
+        print(error)
 
 bot.load_extension("cogs.configurations")
 bot.load_extension("cogs.information")
 bot.load_extension("cogs.notifications")
 bot.load_extension("cogs.roles")
 bot.load_extension("cogs.verifications")
+bot.load_extension("cogs.embeds")
 
 bot.load_extension("background_tasks.notificationLoop")
 bot.load_extension("background_tasks.onlineEmbed")
 bot.load_extension("background_tasks.verifyCheckup")
-
 
 bot.run(BOT_TOKEN)
