@@ -1,6 +1,5 @@
 import disnake
 from disnake.ext import commands
-from disnake.ext.commands import default_member_permissions
 
 import utils.updateConfigurations as updateConfigurations
 import utils.giveRole as giveRole
@@ -15,15 +14,15 @@ class Verify(commands.Cog):
     async def verify(self, inter : disnake.GuildCommandInteraction):
         pass
 
-    @verify.sub_command(name="give-verified-role", description="Toggle whether members get your citizen role when verified", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @verify.sub_command(name="give-verified-role", description="Toggle whether members get your citizen role when verified")
     async def give_verified_role(self, inter : disnake.GuildCommandInteraction, status: true_or_false):
         updateConfigurations.update_configuration(context=inter, give_verified_role=status)
 
-    @verify.sub_command(name="verified-checkup", description="Automatically remove people who have left the server from verifications", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @verify.sub_command(name="verified-checkup", description="Automatically remove people who have left the server from verifications")
     async def verified_checkup(self, inter : disnake.GuildCommandInteraction, status: true_or_false):
         updateConfigurations.update_configuration(context=inter, verified_checkup=status)
 
-    @verify.sub_command(name="add", description="Verify a citizen of your nation", default_member_permissions=disnake.Permissions(moderate_members=True))
+    @verify.sub_command(name="add", description="Verify a citizen of your nation")
     async def add(self, inter : disnake.GuildCommandInteraction, member: disnake.User, minecraft_username : str):
         server_data = updateConfigurations.load_server_config(inter.guild.id)
 
@@ -50,7 +49,7 @@ class Verify(commands.Cog):
 
         await inter.response.send_message(f"Verified **{member.mention}** with link to **{minecraft_username}**")
 
-    @verify.sub_command(name="remove", description="Remove a citizen verification", default_member_permissions=disnake.Permissions(moderate_members=True))
+    @verify.sub_command(name="remove", description="Remove a citizen verification")
     async def remove(self, inter : disnake.GuildCommandInteraction, member: disnake.User):
         server_data = updateConfigurations.load_server_config(inter.guild.id)
 

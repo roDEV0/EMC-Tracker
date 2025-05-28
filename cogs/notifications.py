@@ -19,19 +19,19 @@ class Notifications(commands.Cog):
     async def notifications(self, inter : disnake.GuildCommandInteraction):
         pass
 
-    @notifications.sub_command(name="channel", description="Set the notifications channel for updated info on your nation", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @notifications.sub_command(name="channel", description="Set the notifications channel for updated info on your nation")
     async def notifications_channel(self, inter : disnake.GuildCommandInteraction, channel: disnake.TextChannel):
         update_configurations.update_configuration(context=inter, notifications_channel=channel.id)
         await inter.response.send_message(f"Updated notifications channel to **{channel.mention}**")
         print(f"Guild {inter.guild.id} has updated notifications channel to {channel.mention}")
 
-    @notifications.sub_command(name="status", description="Turn on or off notifications for updated info on your nation", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @notifications.sub_command(name="status", description="Turn on or off notifications for updated info on your nation")
     async def notifications_status(self, inter : disnake.GuildCommandInteraction, status : true_or_false):
         update_configurations.update_configuration(context=inter, notifications_status=status)
         await inter.response.send_message(f"Set notifications to **{status}**")
         print(f"Guild {inter.guild.id} has updated notifications status {status}")
 
-    @notifications.sub_command(name="add", description="Add another nation to add to your notifications", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @notifications.sub_command(name="add", description="Add another nation to add to your notifications")
     async def add_target(self, inter : disnake.GuildCommandInteraction, target: str):
         if checkNation.check_nation(target):
             path = os.path.join(constants.GROUP_STORAGE_DATA, f"{target}.json")
@@ -63,7 +63,7 @@ class Notifications(commands.Cog):
         else:
             await inter.response.send_message(f"**{target}** is not a real nation")
 
-    @notifications.sub_command(name="remove", description="Remove a nation from your notifications", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @notifications.sub_command(name="remove", description="Remove a nation from your notifications")
     async def remove_target(self, inter : disnake.GuildCommandInteraction, target: str):
         path = os.path.join(constants.GROUP_STORAGE_DATA, f"{target}.json")
 

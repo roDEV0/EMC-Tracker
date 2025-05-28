@@ -17,7 +17,7 @@ class Embeds(commands.Cog):
     async def embed(self, inter : disnake.GuildCommandInteraction):
         pass
 
-    @embed.sub_command(name="add", description="Creates a new online embed", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @embed.sub_command(name="add", description="Creates a new online embed")
     async def add(self, inter : disnake.GuildCommandInteraction, target : str):
         if checkNation.check_nation(target):
             for filename in os.listdir(constants.GROUP_STORAGE_DATA):
@@ -58,7 +58,7 @@ class Embeds(commands.Cog):
         else:
             await inter.response.send_message(f"**{target}** is not a real nation")
 
-    @embed.sub_command(name="remove", description="Removes your current online embed", default_member_permissions=disnake.Permissions(manage_guild=True))
+    @embed.sub_command(name="remove", description="Removes your current online embed")
     async def remove(self, inter : disnake.GuildCommandInteraction):
         for filename in os.listdir(constants.GROUP_STORAGE_DATA):
             path = os.path.join(constants.GROUP_STORAGE_DATA, filename)
